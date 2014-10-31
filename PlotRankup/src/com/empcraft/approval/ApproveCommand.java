@@ -2,6 +2,7 @@ package com.empcraft.approval;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +70,7 @@ public class ApproveCommand extends SubCommand {
             Set<Flag> flags = plot.settings.getFlags();
             flags.remove(flag);
             flags.add(new Flag(FlagManager.getFlag("done"), "true"));
+            plot.countsTowardsMax = false;
             plot.settings.setFlags(flags.toArray(new Flag[0]));
             DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));
             
@@ -119,13 +121,13 @@ public class ApproveCommand extends SubCommand {
         if (args[0].equals("listworld")) { // Plots are sorted in claim order.
             World world = player.getWorld();
             
-            ArrayList<Plot> plots = getPlots(world);
+            ArrayList<PlotWrapper> plots = getPlots(world);
             if (plots.size()==0) {
                 Main.sendMessage(player, "&7There are currently &c0&7 plots pending for approval.");
                 return true;
             }
             Main.sendMessage(player, "&7There are currently &c"+plots.size()+"&7 plots pending for approval.");
-            for (Plot current : plots) {
+            for (PlotWrapper current : plots) {
                 String ownername = UUIDHandler.getName(current.owner);
                 if (ownername==null) {
                     ownername = "unknown";
@@ -135,13 +137,13 @@ public class ApproveCommand extends SubCommand {
             return true;
         }
         if (args[0].equals("list")) {
-            ArrayList<Plot> plots = getPlots();
+            ArrayList<PlotWrapper> plots = getPlots();
             if (plots.size()==0) {
                 Main.sendMessage(player, "&7There are currently &c0&7 plots pending for approval.");
                 return true;
             }
             Main.sendMessage(player, "&7There are currently &c"+plots.size()+"&7 plots pending for approval.");
-            for (Plot current : plots) {
+            for (PlotWrapper current : plots) {
                 String ownername = UUIDHandler.getName(current.owner);
                 if (ownername==null) {
                     ownername = "unknown";
@@ -156,7 +158,7 @@ public class ApproveCommand extends SubCommand {
             World world = player.getWorld();
             String worldname = world.getName();
             
-            ArrayList<Plot> plots = getPlots();
+            ArrayList<PlotWrapper> plots = getPlots();
             if (plots.size() > 0) {
                 if (id!=null) {
                     Plot plot = PlotMain.getPlots(world).get(id); 
@@ -164,14 +166,18 @@ public class ApproveCommand extends SubCommand {
                         for (int i = 0; i < plots.size(); i++) {
                             if (plots.get(i).id.equals(id) && plots.get(i).world.equals(worldname)) {
                                 if (i < plots.size()-1) {
-                                    PlotMain.teleportPlayer(player, player.getLocation(), plots.get(i+1));
+                                    PlotWrapper wrap = plots.get(i+1);
+                                    Plot p2 = PlotMain.getPlots(wrap.world).get(wrap.id);
+                                    PlotMain.teleportPlayer(player, player.getLocation(), p2);
                                 }
                                 break;
                             }
                         }
                     }
                 }
-                PlotMain.teleportPlayer(player, player.getLocation(), plots.get(0));
+                PlotWrapper wrap = plots.get(0);
+                Plot p2 = PlotMain.getPlots(wrap.world).get(wrap.id);
+                PlotMain.teleportPlayer(player, player.getLocation(), p2);
                 return true;
             }
             Main.sendMessage(player, "&7There are currently &c0&7 plots pending for approval.");
@@ -199,6 +205,7 @@ public class ApproveCommand extends SubCommand {
             }
             Set<Flag> flags = plot.settings.getFlags();
             flags.remove(flag);
+            plot.countsTowardsMax = true;
             plot.settings.setFlags(flags.toArray(new Flag[0]));
             DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));
             
@@ -213,36 +220,54 @@ public class ApproveCommand extends SubCommand {
         }
         return true;
     }
-    private ArrayList<Plot> getPlots() {
+    private ArrayList<PlotWrapper> getPlots() {
         
-        ArrayList<Plot> plots = new ArrayList<Plot>();
+        ArrayList<PlotWrapper> plots = new ArrayList<PlotWrapper>();
         
         for (Plot plot : PlotMain.getPlots()) {
             if (plot.hasOwner()) {
                 Flag flag = plot.settings.getFlag("done");
                 if (flag!=null) {
-                    if (flag.getValue().equals("false")) {
-                        plots.add(plot);
+                    if (!flag.getValue().equals("true")) {
+                        Long timestamp;
+                        try {
+                            timestamp = Long.parseLong(flag.getValue());
+                        }
+                        catch (Exception e) {
+                            timestamp = 0L;
+                        }
+                        PlotWrapper wrap = new PlotWrapper(timestamp, plot.id, plot.world, plot.owner);
+                        plots.add(wrap);
                     }
                 }
             }
         }
+        Collections.sort(plots);
         return plots;
     }
-    private ArrayList<Plot> getPlots(World world) {
+    private ArrayList<PlotWrapper> getPlots(World world) {
         
-        ArrayList<Plot> plots = new ArrayList<Plot>();
+        ArrayList<PlotWrapper> plots = new ArrayList<PlotWrapper>();
         
         for (Plot plot : PlotMain.getPlots(world).values()) {
             if (plot.hasOwner()) {
                 Flag flag = plot.settings.getFlag("done");
                 if (flag!=null) {
-                    if (flag.getValue().equals("false")) {
-                        plots.add(plot);
+                    if (!flag.getValue().equals("true")) {
+                        Long timestamp;
+                        try {
+                            timestamp = Long.parseLong(flag.getValue());
+                        }
+                        catch (Exception e) {
+                            timestamp = 0L;
+                        }
+                        PlotWrapper wrap = new PlotWrapper(timestamp, plot.id, plot.world, plot.owner);
+                        plots.add(wrap);
                     }
                 }
             }
         }
+        Collections.sort(plots);
         return plots;
     }
     private int countApproved(UUID owner, World world) {

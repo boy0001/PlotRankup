@@ -41,7 +41,7 @@ public class DoneCommand extends SubCommand {
         }
         Flag flag = plot.settings.getFlag("done");
         if (flag!=null) {
-            if (flag.getValue().equals("false")) {
+            if (!flag.getValue().equals("true")) {
                 Main.sendMessage(player, "&7This plot is already marked as &cdone&7 and is waiting for approval.");
             }
             else {
@@ -76,7 +76,7 @@ public class DoneCommand extends SubCommand {
         }
         
         Set<Flag> flags = plot.settings.getFlags();
-        flags.add(new Flag(FlagManager.getFlag("done"), "false"));
+        flags.add(new Flag(FlagManager.getFlag("done"), ""+(System.currentTimeMillis()/1000)));
         plot.settings.setFlags(flags.toArray(new Flag[0]));
         
         DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));

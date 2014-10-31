@@ -60,6 +60,18 @@ public class Main extends JavaPlugin implements Listener {
         setupConfig();
         setupFlags();
         Main.config = this.getConfig();
+        setupPlots();
+    }
+    
+    private static void setupPlots() {
+        for (Plot plot : PlotMain.getPlots()) {
+            Flag flag = plot.settings.getFlag("done");
+            if (flag!=null) {
+                if (flag.getValue().equals("true")) {
+                    plot.countsTowardsMax = false;
+                }
+            }
+        }
     }
     
     private void setupConfig() {
@@ -70,7 +82,6 @@ public class Main extends JavaPlugin implements Listener {
         options.put("build-while-approved", false);
         for (String world: PlotMain.getPlotWorlds()) {
             options.put(world+".approval.min-required-changed-blocks", 0);
-            options.put(world+".approval.required-approvals", 1);
             List<String> actions = Arrays.asList("1:manuadd %player% rank1", "2:manuadd %player% %nextrank%");
             options.put(world+".approval.actions", actions); 
             List<String> rankLadder = Arrays.asList("rank1", "rank2");
@@ -99,6 +110,7 @@ public class Main extends JavaPlugin implements Listener {
         MainCommand.subCommands.add(new DoneCommand());
         MainCommand.subCommands.add(new ContinueCommand());
         MainCommand.subCommands.add(new ApproveCommand());
+        MainCommand.subCommands.add(new CheckCommand());
     }
     
     private void setupVault() {
@@ -138,18 +150,17 @@ public class Main extends JavaPlugin implements Listener {
             @Override
             public String parseValue(String value) {
                 switch(value) {
-                    case "finished":
-                    case "1":
                     case "true":
-                    case "done":
-                        return "true";
-                    case "0":
-                    case "building":
+                        return "0";
                     case "false":
-                    case "unfinished":
                         return "false";
                     default:
-                        return null;
+                        try {
+                            return Long.parseLong(value)+"";
+                        }
+                        catch (Exception e) {
+                            return null;
+                        }
                 }
             }
         };
@@ -185,7 +196,7 @@ public class Main extends JavaPlugin implements Listener {
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
-                if (flag.getValue().equals("false" )) {
+                if (!flag.getValue().equals("true")) {
                     sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
                 }
                 else {
@@ -226,7 +237,7 @@ public class Main extends JavaPlugin implements Listener {
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
-                if (flag.getValue().equals("false" )) {
+                if (!flag.getValue().equals("true")) {
                     sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
                 }
                 else {
@@ -270,7 +281,7 @@ public class Main extends JavaPlugin implements Listener {
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
-                if (flag.getValue().equals("false" )) {
+                if (!flag.getValue().equals("true")) {
                     sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
                 }
                 else {
