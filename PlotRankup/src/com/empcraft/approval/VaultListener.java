@@ -22,9 +22,6 @@ public class VaultListener implements Listener {
     
     public VaultListener(Main main, Plugin vaultPlugin) {
         this.main = main;
-        
-        Main.sendMessage(null, "Vault features are currently not implemented yet.");
-        
         setupPermissions();
     }
     private boolean setupPermissions() {

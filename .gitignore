@@ -2,3 +2,4 @@
 *.project
 bin/com/empcraft/approval/Main$1.class
 *.prefs
+*.class
