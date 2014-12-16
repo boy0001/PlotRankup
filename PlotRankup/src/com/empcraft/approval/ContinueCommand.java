@@ -2,13 +2,12 @@ package com.empcraft.approval;
 
 import java.util.Set;
 
-import com.intellectualcrafters.plot.C;
-import com.intellectualcrafters.plot.Flag;
-import com.intellectualcrafters.plot.FlagManager;
-import com.intellectualcrafters.plot.PlayerFunctions;
-import com.intellectualcrafters.plot.Plot;
 import com.intellectualcrafters.plot.commands.SubCommand;
+import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
+import com.intellectualcrafters.plot.flag.Flag;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.util.PlayerFunctions;
 
 import org.bukkit.entity.Player;
 

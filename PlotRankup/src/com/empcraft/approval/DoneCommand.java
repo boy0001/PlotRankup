@@ -4,18 +4,18 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.intellectualcrafters.plot.C;
-import com.intellectualcrafters.plot.Flag;
-import com.intellectualcrafters.plot.FlagManager;
-import com.intellectualcrafters.plot.PlayerFunctions;
-import com.intellectualcrafters.plot.Plot;
-import com.intellectualcrafters.plot.PlotBlock;
-import com.intellectualcrafters.plot.PlotHelper;
 import com.intellectualcrafters.plot.PlotMain;
-import com.intellectualcrafters.plot.PlotWorld;
 import com.intellectualcrafters.plot.commands.SubCommand;
+import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
+import com.intellectualcrafters.plot.flag.Flag;
+import com.intellectualcrafters.plot.flag.FlagManager;
 import com.intellectualcrafters.plot.generator.DefaultPlotWorld;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.object.PlotBlock;
+import com.intellectualcrafters.plot.object.PlotWorld;
+import com.intellectualcrafters.plot.util.PlayerFunctions;
+import com.intellectualcrafters.plot.util.PlotHelper;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -83,14 +83,14 @@ public class DoneCommand extends SubCommand {
         
         Main.sendMessage(player, "&7Your plot has been marked as &adone&7 and should be approved shortly.");
         
-        return true;
+        return true;    
     }
     
     private int hasChanged(World world, Plot plot) {
         PlotWorld plotworld = PlotMain.getWorldSettings(world);
         if (plotworld instanceof DefaultPlotWorld) {
-            int goal = Main.worldChanged.get(world.getName());
-            if (goal==0) {
+            Integer goal = Main.worldChanged.get(world.getName());
+            if (goal==null || goal.intValue()==0) {
                 return -1;
             }
             int count = 0;

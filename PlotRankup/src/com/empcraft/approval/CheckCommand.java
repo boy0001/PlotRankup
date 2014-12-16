@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 
-import com.intellectualcrafters.plot.C;
-import com.intellectualcrafters.plot.Flag;
-import com.intellectualcrafters.plot.FlagManager;
-import com.intellectualcrafters.plot.PlayerFunctions;
-import com.intellectualcrafters.plot.Plot;
 import com.intellectualcrafters.plot.PlotMain;
 import com.intellectualcrafters.plot.commands.SubCommand;
+import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
+import com.intellectualcrafters.plot.flag.Flag;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.util.PlayerFunctions;
 
 import org.bukkit.entity.Player;
 
@@ -95,58 +94,58 @@ public class CheckCommand extends SubCommand {
             years = (int) (time/33868800);
             time-=years*33868800;
             if (time>1) {
-                toreturn.append(years+"years ");
+                toreturn.append(years+" years ");
             }
             else {
-                toreturn.append(years+"year ");
+                toreturn.append(years+" year ");
             }
         }
         if (time>=604800) {
             weeks = (int) (time/604800);
             time-=weeks*604800;
             if (time>1) {
-                toreturn.append(weeks+"weeks ");
+                toreturn.append(weeks+" weeks ");
             }
             else {
-                toreturn.append(weeks+"week ");
+                toreturn.append(weeks+" week ");
             }
         }
         if (time>=86400) {
             days = (int) (time/86400);
             time-=days*86400;
             if (time>1) {
-                toreturn.append(days+"days ");
+                toreturn.append(days+" days ");
             }
             else {
-                toreturn.append(days+"day ");
+                toreturn.append(days+" day ");
             }
         }
         if (time>=3600) {
             hours = (int) (time/3600);
             time-=hours*3600;
             if (time>1) {
-                toreturn.append(hours+"hours ");
+                toreturn.append(hours+" hours ");
             }
             else {
-                toreturn.append(hours+"hour ");
+                toreturn.append(hours+" hour ");
             }
         }
         if (time>=60) {
             minutes = (int) (time/60);
             time-=minutes*60;
             if (time>1) {
-                toreturn.append(minutes+"minutes ");
+                toreturn.append(minutes+" minutes ");
             }
             else {
-                toreturn.append(minutes+"minute ");
+                toreturn.append(minutes+" minute ");
             }
         }
         if (toreturn.equals("")||time>0){
             if (time>1) {
-                toreturn.append((time)+"seconds ");
+                toreturn.append((time)+" seconds ");
             }
             else {
-                toreturn.append((time)+"second ");
+                toreturn.append((time)+" second ");
             }
         }
         return toreturn.toString();
