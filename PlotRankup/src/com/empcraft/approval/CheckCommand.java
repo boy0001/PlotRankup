@@ -32,7 +32,7 @@ public class CheckCommand extends SubCommand {
             return false;
         }
         
-        Flag flag = plot.settings.getFlag("done");
+        Flag flag = FlagManager.getPlotFlag(plot, "done");
         if (flag==null || flag.getValue().equals("true")) {
             Main.sendMessage(player, "&cThis plot is not in the queue!");
             return false;
@@ -63,7 +63,7 @@ public class CheckCommand extends SubCommand {
             
             for (Plot plot : PlotMain.getPlots()) {
                 if (plot.hasOwner()) {
-                    Flag flag = plot.settings.getFlag("done");
+                    Flag flag = FlagManager.getPlotFlag(plot, "done");
                     if (flag!=null) {
                         if (!flag.getValue().equals("true")) {
                             Long timestamp;

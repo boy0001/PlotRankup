@@ -14,7 +14,6 @@ import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
 import com.intellectualcrafters.plot.flag.Flag;
 import com.intellectualcrafters.plot.flag.FlagManager;
-import com.intellectualcrafters.plot.generator.DefaultPlotWorld;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotId;
 import com.intellectualcrafters.plot.util.PlayerFunctions;
@@ -54,7 +53,7 @@ public class ApproveCommand extends SubCommand {
                 return false;
             }
             
-            Flag flag = plot.settings.getFlag("done");
+            Flag flag = FlagManager.getPlotFlag(plot, "done");
             if (flag==null || flag.getValue().equals("true")) {
                 if (flag==null) {
                     Main.sendMessage(player, "&7This plot is not &cpending&7 for approval.");
@@ -64,13 +63,7 @@ public class ApproveCommand extends SubCommand {
                 }
                 return false;
             }
-            Set<Flag> flags = plot.settings.getFlags();
-            flags.remove(flag);
-            flags.add(new Flag(FlagManager.getFlag("done"), "true"));
-            plot.countsTowardsMax = false;
-            plot.settings.setFlags(flags.toArray(new Flag[0]));
-            DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));
-            
+            FlagManager.addPlotFlag(plot, new Flag(FlagManager.getFlag("done"), "true"));
             Player owner = Bukkit.getPlayer(plot.owner);
             if (owner!=null) {
                 if (plot.settings.getAlias() != null && !plot.settings.getAlias().equals("")) {
@@ -195,19 +188,12 @@ public class ApproveCommand extends SubCommand {
                 return false;
             }
             
-            Flag flag = plot.settings.getFlag("done");
+            Flag flag = FlagManager.getPlotFlag(plot, "done");
             if (flag==null) {
                 Main.sendMessage(player, "&7This plot is not &cpending&7 for approval.");
                 return false;
             }
-            Set<Flag> flags = plot.settings.getFlags();
-            flags.remove(flag);
-            plot.countsTowardsMax = true;
-            plot.settings.setFlags(flags.toArray(new Flag[0]));
-            DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));
-            
-//            int coolTime = Main.config.getInt("reapproval-wait-time-sec");
-            
+            FlagManager.removePlotFlag(plot, "done");
             String owner = UUIDHandler.getName(plot.owner);
             if (owner!=null) {
                 Main.cooldown.put(owner, (System.currentTimeMillis()/1000));
@@ -223,7 +209,7 @@ public class ApproveCommand extends SubCommand {
         
         for (Plot plot : PlotMain.getPlots()) {
             if (plot.hasOwner()) {
-                Flag flag = plot.settings.getFlag("done");
+                Flag flag = FlagManager.getPlotFlag(plot, "done");
                 if (flag!=null) {
                     if (!flag.getValue().equals("true")) {
                         Long timestamp;
@@ -248,7 +234,7 @@ public class ApproveCommand extends SubCommand {
         
         for (Plot plot : PlotMain.getPlots(world).values()) {
             if (plot.hasOwner()) {
-                Flag flag = plot.settings.getFlag("done");
+                Flag flag = FlagManager.getPlotFlag(plot, "done");
                 if (flag!=null) {
                     if (!flag.getValue().equals("true")) {
                         Long timestamp;
@@ -271,7 +257,7 @@ public class ApproveCommand extends SubCommand {
         int count = 0;
         for (Plot plot : PlotMain.getPlots(world).values()) {
             if (plot.owner.equals(owner)) {
-                Flag flag = plot.settings.getFlag("done");
+                Flag flag = FlagManager.getPlotFlag(plot, "done");
                 if (flag!=null) {
                     if (flag.getValue().equals("true")) {
                         count++;

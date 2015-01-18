@@ -63,7 +63,7 @@ public class Main extends JavaPlugin implements Listener {
     
     private static void setupPlots() {
         for (Plot plot : PlotMain.getPlots()) {
-            Flag flag = plot.settings.getFlag("done");
+            Flag flag = FlagManager.getPlotFlag(plot, "done");
             if (flag!=null) {
                 if (flag.getValue().equals("true")) {
                     plot.countsTowardsMax = false;
@@ -185,7 +185,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }
@@ -226,7 +226,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }
@@ -270,7 +270,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }

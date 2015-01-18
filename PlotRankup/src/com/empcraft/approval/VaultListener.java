@@ -3,9 +3,6 @@ package com.empcraft.approval;
 import java.util.List;
 import java.util.UUID;
 
-import net.milkbowl.vault.Vault;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
