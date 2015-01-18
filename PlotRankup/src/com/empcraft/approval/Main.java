@@ -291,20 +291,6 @@ public class Main extends JavaPlugin implements Listener {
     }
     
     @EventHandler
-    private static void onFlagAdd(PlotFlagAddEvent event) {
-        if (event.getFlag().getKey().equals("done")) {
-            event.setCancelled(true);
-        }
-    }
-    
-    @EventHandler
-    private static void onFlagRemove(PlotFlagRemoveEvent event) {
-        if (event.getFlag().getKey().equals("done")) {
-            event.setCancelled(true);
-        }
-    }
-    
-    @EventHandler
     private static void onJoin(PlayerJoinEvent event) {
         if (toRemove.contains(event.getPlayer().getName())) {
             toRemove.remove(event.getPlayer().getName());

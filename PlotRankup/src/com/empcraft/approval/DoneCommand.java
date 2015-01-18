@@ -1,26 +1,15 @@
 package com.empcraft.approval;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.intellectualcrafters.plot.PlotMain;
 import com.intellectualcrafters.plot.commands.SubCommand;
 import com.intellectualcrafters.plot.config.C;
-import com.intellectualcrafters.plot.database.DBFunc;
 import com.intellectualcrafters.plot.flag.Flag;
 import com.intellectualcrafters.plot.flag.FlagManager;
 import com.intellectualcrafters.plot.generator.HybridPlotManager;
 import com.intellectualcrafters.plot.generator.HybridPlotWorld;
 import com.intellectualcrafters.plot.object.Plot;
-import com.intellectualcrafters.plot.object.PlotBlock;
 import com.intellectualcrafters.plot.object.PlotWorld;
 import com.intellectualcrafters.plot.util.PlayerFunctions;
-import com.intellectualcrafters.plot.util.PlotHelper;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 public class DoneCommand extends SubCommand {
@@ -67,9 +56,10 @@ public class DoneCommand extends SubCommand {
         	goal = 0;
         }
         boolean changed = hasChanged(plot, goal);
-        if (changed) {
-            Main.sendMessage(player, "&7You've changed &c"+changed+" blocks for your current build. It has potential, and if you put some more time into it you'll definitely have something special.\n&8 - &7You can resubmit this build in &a"+coolTime+"&7 seconds. Good luck!");
+        if (!changed) {
+            Main.sendMessage(player, "&7You've changed an &cinsignificant&7 number of blocks in your current build. It has potential, and if you put some more time into it you'll definitely have something special.\n&8 - &7You can resubmit this build in &a"+coolTime+"&7 seconds. Good luck!");
             Main.cooldown.put(player.getName(), System.currentTimeMillis()/1000);
+            return false;
         }
         
         for (String user : Main.toRemove) {
