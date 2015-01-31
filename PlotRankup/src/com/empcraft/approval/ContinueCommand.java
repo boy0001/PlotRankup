@@ -2,13 +2,13 @@ package com.empcraft.approval;
 
 import java.util.Set;
 
-import com.intellectualcrafters.plot.C;
-import com.intellectualcrafters.plot.Flag;
-import com.intellectualcrafters.plot.FlagManager;
-import com.intellectualcrafters.plot.PlayerFunctions;
-import com.intellectualcrafters.plot.Plot;
 import com.intellectualcrafters.plot.commands.SubCommand;
+import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
+import com.intellectualcrafters.plot.flag.Flag;
+import com.intellectualcrafters.plot.flag.FlagManager;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.util.PlayerFunctions;
 
 import org.bukkit.entity.Player;
 
@@ -30,7 +30,7 @@ public class ContinueCommand extends SubCommand {
             return false;
         }
         
-        Flag flag = plot.settings.getFlag("done");
+        Flag flag = FlagManager.getPlotFlag(plot, "done");
         if (flag==null) {
             Main.sendMessage(player, "&7This plot is already in &cbuild&7 mode.");
             return false;
@@ -40,13 +40,7 @@ public class ContinueCommand extends SubCommand {
             Main.sendMessage(player, "&7This plot has been &a approved &7 and &c locked &7 by an admin.");
             return false; 
         }
-        
-        Set<Flag> flags = plot.settings.getFlags();
-        flags.remove(flag);
-        plot.settings.setFlags(flags.toArray(new Flag[0]));
-        
-        DBFunc.setFlags(player.getWorld().getName(), plot, plot.settings.getFlags().toArray(new Flag[0]));
-        
+        FlagManager.removePlotFlag(plot, "done");
         Main.sendMessage(player, "&7You may now &acontinue &7building.");
         
         return true;

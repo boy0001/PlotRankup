@@ -1,16 +1,11 @@
 package com.empcraft.approval;
 
-import com.intellectualcrafters.plot.AbstractFlag;
-import com.intellectualcrafters.plot.Flag;
-import com.intellectualcrafters.plot.FlagManager;
-import com.intellectualcrafters.plot.PlayerFunctions;
-import com.intellectualcrafters.plot.Plot;
-import com.intellectualcrafters.plot.PlotHelper;
-import com.intellectualcrafters.plot.PlotId;
-import com.intellectualcrafters.plot.PlotMain;
-import com.intellectualcrafters.plot.commands.MainCommand;
-import com.intellectualcrafters.plot.events.PlotFlagAddEvent;
-import com.intellectualcrafters.plot.events.PlotFlagRemoveEvent;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,7 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,12 +25,16 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import com.intellectualcrafters.plot.PlotMain;
+import com.intellectualcrafters.plot.commands.MainCommand;
+import com.intellectualcrafters.plot.events.PlotFlagAddEvent;
+import com.intellectualcrafters.plot.events.PlotFlagRemoveEvent;
+import com.intellectualcrafters.plot.flag.AbstractFlag;
+import com.intellectualcrafters.plot.flag.Flag;
+import com.intellectualcrafters.plot.flag.FlagManager;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.object.PlotId;
+import com.intellectualcrafters.plot.util.PlayerFunctions;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -65,7 +63,7 @@ public class Main extends JavaPlugin implements Listener {
     
     private static void setupPlots() {
         for (Plot plot : PlotMain.getPlots()) {
-            Flag flag = plot.settings.getFlag("done");
+            Flag flag = FlagManager.getPlotFlag(plot, "done");
             if (flag!=null) {
                 if (flag.getValue().equals("true")) {
                     plot.countsTowardsMax = false;
@@ -148,19 +146,24 @@ public class Main extends JavaPlugin implements Listener {
                 return "Value must be a boolean 'true' or 'false'; which determines whether your build has been finalized.";
             }
             @Override
-            public String parseValue(String value) {
+            public Object parseValueRaw(String value) {
                 switch(value) {
-                    case "true":
-                        return "0";
-                    case "false":
-                        return "false";
-                    default:
+                    case "true": {
+                        Long n = 0l;
+                        return n;
+                    }
+                    case "false": {
+                        return Boolean.TRUE;
+                    }
+                    default: {
                         try {
-                            return Long.parseLong(value)+"";
+                            Long n = Long.parseLong(value);
+                            return n;
                         }
                         catch (Exception e) {
                             return null;
                         }
+                    }
                 }
             }
         };
@@ -187,7 +190,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }
@@ -228,7 +231,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }
@@ -272,7 +275,7 @@ public class Main extends JavaPlugin implements Listener {
         if (!rights) {
             return;
         }
-        Flag flag = plot.settings.getFlag("done"); 
+        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
         if (flag == null) {
             return;
         }
@@ -289,20 +292,6 @@ public class Main extends JavaPlugin implements Listener {
                 }
                 event.setCancelled(true);
             }
-        }
-    }
-    
-    @EventHandler
-    private static void onFlagAdd(PlotFlagAddEvent event) {
-        if (event.getFlag().getKey().equals("done")) {
-            event.setCancelled(true);
-        }
-    }
-    
-    @EventHandler
-    private static void onFlagRemove(PlotFlagRemoveEvent event) {
-        if (event.getFlag().getKey().equals("done")) {
-            event.setCancelled(true);
         }
     }
     

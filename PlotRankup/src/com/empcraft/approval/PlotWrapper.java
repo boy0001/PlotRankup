@@ -2,7 +2,7 @@ package com.empcraft.approval;
 
 import java.util.UUID;
 
-import com.intellectualcrafters.plot.PlotId;
+import com.intellectualcrafters.plot.object.PlotId;
 
 public class PlotWrapper implements Comparable<PlotWrapper> {
     
