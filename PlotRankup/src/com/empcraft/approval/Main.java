@@ -25,30 +25,30 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.intellectualcrafters.plot.PlotMain;
+import com.intellectualcrafters.plot.PlotSquared;
 import com.intellectualcrafters.plot.commands.MainCommand;
-import com.intellectualcrafters.plot.events.PlotFlagAddEvent;
-import com.intellectualcrafters.plot.events.PlotFlagRemoveEvent;
 import com.intellectualcrafters.plot.flag.AbstractFlag;
 import com.intellectualcrafters.plot.flag.Flag;
 import com.intellectualcrafters.plot.flag.FlagManager;
+import com.intellectualcrafters.plot.flag.FlagValue;
 import com.intellectualcrafters.plot.object.Plot;
-import com.intellectualcrafters.plot.object.PlotId;
-import com.intellectualcrafters.plot.util.PlayerFunctions;
+import com.intellectualcrafters.plot.object.PlotPlayer;
+import com.intellectualcrafters.plot.util.MainUtil;
+import com.intellectualcrafters.plot.util.Permissions;
+import com.intellectualcrafters.plot.util.bukkit.BukkitUtil;
 
 public class Main extends JavaPlugin implements Listener {
 
     public String version;
     public Main plugin;
-    
-    
+
     public static boolean vaultFeatures = false;
     public static HashMap<String, Long> cooldown = new HashMap<String, Long>();
     public static HashSet<String> toRemove = new HashSet<String>();
     public static FileConfiguration config;
-    
+
     public static HashMap<String, Integer> worldChanged = new HashMap<String, Integer>();
-    
+
     @Override
     public void onEnable() {
         this.version = getDescription().getVersion();
@@ -60,30 +60,30 @@ public class Main extends JavaPlugin implements Listener {
         Main.config = this.getConfig();
         setupPlots();
     }
-    
+
     private static void setupPlots() {
-        for (Plot plot : PlotMain.getPlots()) {
-            Flag flag = FlagManager.getPlotFlag(plot, "done");
-            if (flag!=null) {
+        for (final Plot plot : PlotSquared.getPlots()) {
+            final Flag flag = FlagManager.getPlotFlag(plot, "done");
+            if (flag != null) {
                 if (flag.getValue().equals("true")) {
                     plot.countsTowardsMax = false;
                 }
             }
         }
     }
-    
+
     private void setupConfig() {
         getConfig().options().copyDefaults(true);
         final Map<String, Object> options = new HashMap<String, Object>();
-        getConfig().set("version", version);
+        getConfig().set("version", this.version);
         options.put("reapproval-wait-time-sec", 300);
         options.put("build-while-approved", false);
-        for (String world: PlotMain.getPlotWorlds()) {
-            options.put(world+".approval.min-required-changed-blocks", 0);
-            List<String> actions = Arrays.asList("1:manuadd %player% rank1", "2:manuadd %player% %nextrank%");
-            options.put(world+".approval.actions", actions); 
-            List<String> rankLadder = Arrays.asList("rank1", "rank2");
-            options.put(world+".approval.rankLadder", rankLadder); 
+        for (final String world : PlotSquared.getPlotWorlds()) {
+            options.put(world + ".approval.min-required-changed-blocks", 0);
+            final List<String> actions = Arrays.asList("1:manuadd %player% rank1", "2:manuadd %player% %nextrank%");
+            options.put(world + ".approval.actions", actions);
+            final List<String> rankLadder = Arrays.asList("rank1", "rank2");
+            options.put(world + ".approval.rankLadder", rankLadder);
         }
         for (final Entry<String, Object> node : options.entrySet()) {
             if (!getConfig().contains(node.getKey())) {
@@ -91,43 +91,42 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
         saveConfig();
-        for (World world: Bukkit.getWorlds()) {
-            worldChanged.put(world.getName(), getConfig().getInt(world.getName()+".approval.min-required-changed-blocks"));
+        for (final World world : Bukkit.getWorlds()) {
+            worldChanged.put(world.getName(), getConfig().getInt(world.getName() + ".approval.min-required-changed-blocks"));
         }
     }
-    
+
     private void setupPlotSquared() {
         final Plugin plotsquared = Bukkit.getServer().getPluginManager().getPlugin("PlotSquared");
-        if(plotsquared == null || !plotsquared.isEnabled()) {
+        if ((plotsquared == null) || !plotsquared.isEnabled()) {
             sendMessage(null, "&c[PlotApproval] Could not find PlotSquared! Disabling plugin...");
             Bukkit.getServer().getPluginManager().disablePlugin(this);
             return;
         }
-        
+
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
         MainCommand.subCommands.add(new DoneCommand());
         MainCommand.subCommands.add(new ContinueCommand());
         MainCommand.subCommands.add(new ApproveCommand());
         MainCommand.subCommands.add(new CheckCommand());
     }
-    
+
     private void setupVault() {
         final Plugin vaultPlugin = Bukkit.getServer().getPluginManager().getPlugin("Vault");
-        if (vaultPlugin != null && vaultPlugin.isEnabled()) {
-            VaultListener vault = new VaultListener(this, vaultPlugin);
+        if ((vaultPlugin != null) && vaultPlugin.isEnabled()) {
+            final VaultListener vault = new VaultListener(this, vaultPlugin);
             Bukkit.getServer().getPluginManager().registerEvents(vault, this);
             sendMessage(null, "&a[PlotApproval] Detected vault. Additional features enabled");
             Main.vaultFeatures = true;
-        }
-        else {
+        } else {
             sendMessage(null, "&a[PlotApproval] Detected vault. Additional features enabled");
         }
     }
-    
+
     private static String colorise(final String mystring) {
         return ChatColor.translateAlternateColorCodes('&', mystring);
     }
-    
+
     public static void sendMessage(final Player player, final String mystring) {
         if (ChatColor.stripColor(mystring).equals("")) {
             return;
@@ -138,18 +137,15 @@ public class Main extends JavaPlugin implements Listener {
             player.sendMessage(colorise(mystring));
         }
     }
-    
+
     private static void setupFlags() {
-        AbstractFlag doneFlag = new AbstractFlag("done") {
+        final AbstractFlag doneFlag = new AbstractFlag("done", new FlagValue<Object>() {
             @Override
-            public String getValueDesc() {
-                return "Value must be a boolean 'true' or 'false'; which determines whether your build has been finalized.";
-            }
-            @Override
-            public Object parseValueRaw(String value) {
-                switch(value) {
+            public Object parse(final String t) {
+                System.out.print("PARSING: " + t);
+                switch (t) {
                     case "true": {
-                        Long n = 0l;
+                        final Long n = 0l;
                         return n;
                     }
                     case "false": {
@@ -157,158 +153,153 @@ public class Main extends JavaPlugin implements Listener {
                     }
                     default: {
                         try {
-                            Long n = Long.parseLong(value);
+                            final Long n = Long.parseLong(t);
                             return n;
-                        }
-                        catch (Exception e) {
+                        } catch (final Exception e) {
+                            e.printStackTrace();
                             return null;
                         }
                     }
                 }
             }
-        };
+
+            @Override
+            public String getDescription() {
+                return "Value must be a boolean 'true' or 'false'; which determines whether your build has been finalized.";
+            }
+
+            @Override
+            public Object getValue(final Object o) {
+                return o;
+            }
+        });
         FlagManager.addFlag(doneFlag);
     }
-    
-    @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
-    private static void onBlockPlace(BlockPlaceEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-        if (!PlotMain.isPlotWorld(world)) {
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private static void onBlockPlace(final BlockPlaceEvent event) {
+        final Player player = event.getPlayer();
+        final String world = player.getWorld().getName();
+        if (!PlotSquared.isPlotWorld(world)) {
             return;
         }
-        Location loc = event.getBlock().getLocation();
-        PlotId id = PlayerFunctions.getPlot(loc);
-        if (id==null) {
+        final Location loc = event.getBlock().getLocation();
+        final Plot plot = MainUtil.getPlot(BukkitUtil.getLocation(loc));
+        if (plot == null) {
             return;
         }
-        Plot plot = PlotMain.getPlots(world).get(id) ;
-        if (plot==null) {
-            return;
-        }
-        boolean rights = plot.hasRights(player);
+        final PlotPlayer pp = BukkitUtil.getPlayer(player);
+        final boolean rights = plot.isAdded(pp.getUUID());
         if (!rights) {
             return;
         }
-        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
+        final Flag flag = FlagManager.getPlotFlag(plot, "done");
         if (flag == null) {
             return;
         }
-        if (PlotMain.hasPermission(player, "plots.admin")) {
+        if (Permissions.hasPermission(pp, "plots.admin")) {
             return;
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
                 if (!flag.getValue().equals("true")) {
-                    sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
-                }
-                else {
-                    sendMessage(player,"&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
+                    sendMessage(player, "&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
+                } else {
+                    sendMessage(player, "&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
                 }
                 event.setCancelled(true);
             }
         }
     }
-    
-    
-    @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
-    private static void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-        if (!PlotMain.isPlotWorld(world)) {
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private static void onBlockBreak(final BlockBreakEvent event) {
+        final Player player = event.getPlayer();
+        final String world = player.getWorld().getName();
+        if (!PlotSquared.isPlotWorld(world)) {
             return;
         }
-        Location loc = event.getBlock().getLocation();
-        PlotId id = PlayerFunctions.getPlot(loc);
-        if (id==null) {
+        final Location loc = event.getBlock().getLocation();
+        final Plot plot = MainUtil.getPlot(BukkitUtil.getLocation(loc));
+        if (plot == null) {
             return;
         }
-        Plot plot = PlotMain.getPlots(world).get(id) ;
-        if (plot==null) {
-            return;
-        }
-        boolean rights = plot.hasRights(player);
+        final PlotPlayer pp = BukkitUtil.getPlayer(player);
+        final boolean rights = plot.isAdded(pp.getUUID());
         if (!rights) {
             return;
         }
-        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
+        final Flag flag = FlagManager.getPlotFlag(plot, "done");
         if (flag == null) {
             return;
         }
-        if (PlotMain.hasPermission(player, "plots.admin")) {
+        if (Permissions.hasPermission(pp, "plots.admin")) {
             return;
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
                 if (!flag.getValue().equals("true")) {
-                    sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
-                }
-                else {
-                    sendMessage(player,"&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
+                    sendMessage(player, "&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
+                } else {
+                    sendMessage(player, "&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
                 }
                 event.setCancelled(true);
             }
         }
     }
-    
-    @EventHandler(ignoreCancelled=true, priority=EventPriority.HIGH)
-    private static void onInteract(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-        World world = player.getWorld();
-        if (!PlotMain.isPlotWorld(world)) {
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    private static void onInteract(final PlayerInteractEvent event) {
+        final Player player = event.getPlayer();
+        final String world = player.getWorld().getName();
+        if (!PlotSquared.isPlotWorld(world)) {
             return;
         }
-        Block block = event.getClickedBlock();
-        if (block==null) {
+        final Block block = event.getClickedBlock();
+        if (block == null) {
             return;
         }
-        Location loc = block.getLocation();
-        PlotId id = PlayerFunctions.getPlot(loc);
-        if (id==null) {
+        final Location loc = block.getLocation();
+        final Plot plot = MainUtil.getPlot(BukkitUtil.getLocation(loc));
+        if (plot == null) {
             return;
         }
-        Plot plot = PlotMain.getPlots(world).get(id) ;
-        if (plot==null) {
-            return;
-        }
-        boolean rights = plot.hasRights(player);
+        final PlotPlayer pp = BukkitUtil.getPlayer(player);
+        final boolean rights = plot.isAdded(pp.getUUID());
         if (!rights) {
             return;
         }
-        Flag flag = FlagManager.getPlotFlag(plot, "done"); 
+        final Flag flag = FlagManager.getPlotFlag(plot, "done");
         if (flag == null) {
             return;
         }
-        if (PlotMain.hasPermission(player, "plots.admin")) {
+        if (Permissions.hasPermission(pp, "plots.admin")) {
             return;
         }
         if (flag.getValue().equals(true)) {
             if (!config.getBoolean("build-while-approved")) {
                 if (!flag.getValue().equals("true")) {
-                    sendMessage(player,"&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
-                }
-                else {
-                    sendMessage(player,"&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
+                    sendMessage(player, "&7Your plot has been marked as done. To remove it from the queue and continue building please use:\n&a/plots continue");
+                } else {
+                    sendMessage(player, "&7Your plot has been approved. To continue building, please get an admin to unapprove the plot.");
                 }
                 event.setCancelled(true);
             }
         }
     }
-    
+
     @EventHandler
-    private static void onJoin(PlayerJoinEvent event) {
+    private static void onJoin(final PlayerJoinEvent event) {
         if (toRemove.contains(event.getPlayer().getName())) {
             toRemove.remove(event.getPlayer().getName());
         }
     }
-    
+
     @EventHandler
-    private static void onQuit(PlayerQuitEvent event) {
+    private static void onQuit(final PlayerQuitEvent event) {
         if (cooldown.containsKey(event.getPlayer().getName())) {
             toRemove.add(event.getPlayer().getName());
         }
     }
-    
-    
-    
+
 }
