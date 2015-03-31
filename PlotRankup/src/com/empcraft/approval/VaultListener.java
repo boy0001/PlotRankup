@@ -39,7 +39,6 @@ public class VaultListener implements Listener {
                 return ranks.get(i + 1);
             }
         }
-
         return "INVALID_RANK[" + world + ":" + group + "]";
     }
 

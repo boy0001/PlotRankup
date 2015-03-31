@@ -22,7 +22,7 @@ import com.intellectualcrafters.plot.util.bukkit.UUIDHandler;
 public class ApproveCommand extends SubCommand {
 
     public ApproveCommand() {
-        super("approve", "plots.admin", "Used to approve player's plots", "approve", "approval", CommandCategory.ACTIONS, true);
+        super("approve", "plots.approve", "Used to approve player's plots", "approve", "approval", CommandCategory.ACTIONS, true);
     }
 
     @Override

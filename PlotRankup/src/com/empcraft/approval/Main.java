@@ -142,7 +142,6 @@ public class Main extends JavaPlugin implements Listener {
         final AbstractFlag doneFlag = new AbstractFlag("done", new FlagValue<Object>() {
             @Override
             public Object parse(final String t) {
-                System.out.print("PARSING: " + t);
                 switch (t) {
                     case "true": {
                         final Long n = 0l;
