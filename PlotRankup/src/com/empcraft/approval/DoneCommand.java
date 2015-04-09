@@ -11,6 +11,7 @@ import com.intellectualcrafters.plot.object.Location;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.object.PlotWorld;
+import com.intellectualcrafters.plot.object.RunnableVal;
 import com.intellectualcrafters.plot.util.MainUtil;
 
 public class DoneCommand extends SubCommand {
@@ -52,36 +53,30 @@ public class DoneCommand extends SubCommand {
             }
             Main.cooldown.remove(player.getName());
         }
-        Integer goal = Main.worldChanged.get(loc.getWorld());
-        if (goal == null) {
-            goal = 0;
-        }
-        final boolean changed = hasChanged(plot, goal);
-        if (!changed) {
-            MainUtil.sendMessage(player, "&7You've changed an &cinsignificant&7 number of blocks in your current build. It has potential, and if you put some more time into it you'll definitely have something special.\n&8 - &7You can resubmit this build in &a" + coolTime + "&7 seconds. Good luck!");
-            Main.cooldown.put(player.getName(), System.currentTimeMillis() / 1000);
-            return false;
-        }
-
-        for (final String user : Main.toRemove) {
-            if (((System.currentTimeMillis() / 1000) - Main.cooldown.get(user)) >= coolTime) {
-                Main.cooldown.remove(user);
-                Main.toRemove.remove(user);
-            }
-        }
-        FlagManager.addPlotFlag(plot, new Flag(FlagManager.getFlag("done"), (System.currentTimeMillis() / 1000)));
-        MainUtil.sendMessage(player, "&7Your plot has been marked as &adone&7 and should be approved shortly.");
-
-        return true;
-    }
-
-    private boolean hasChanged(final Plot plot, final int goal) {
-        if (goal == 0) {
-            return true;
-        }
+        final Integer goal = Main.worldChanged.get(loc.getWorld());
         final PlotWorld plotworld = PlotSquared.getPlotWorld(plot.world);
         if (plotworld instanceof HybridPlotWorld) {
-            return HybridUtils.manager.checkModified(plot, goal);
+            HybridUtils.manager.checkModified(plot, new RunnableVal() {
+                @Override
+                public void run() {
+                    int changed = (int) value;
+                    if (goal == null || changed == -1 || changed >= goal) {
+                        for (final String user : Main.toRemove) {
+                            if (((System.currentTimeMillis() / 1000) - Main.cooldown.get(user)) >= coolTime) {
+                                Main.cooldown.remove(user);
+                                Main.toRemove.remove(user);
+                            }
+                        }
+                        FlagManager.addPlotFlag(plot, new Flag(FlagManager.getFlag("done"), (System.currentTimeMillis() / 1000)));
+                        MainUtil.sendMessage(player, "&7Your plot has been marked as &adone&7 and should be approved shortly.");
+                    }
+                    else {
+                        MainUtil.sendMessage(player, "&7You've changed an &cinsignificant&7 number of blocks in your current build. It has potential, and if you put some more time into it you'll definitely have something special.\n&8 - &7You can resubmit this build in &a" + coolTime + "&7 seconds. Good luck!");
+                        Main.cooldown.put(player.getName(), System.currentTimeMillis() / 1000);
+                        return;
+                    }
+                }
+            });
         }
         return true;
     }

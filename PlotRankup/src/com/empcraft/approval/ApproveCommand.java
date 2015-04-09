@@ -55,7 +55,7 @@ public class ApproveCommand extends SubCommand {
                 }
                 return false;
             }
-            FlagManager.addPlotFlag(plot, new Flag(FlagManager.getFlag("done"), "true"));
+            FlagManager.addPlotFlag(plot, new Flag(FlagManager.getFlag("done"), Boolean.TRUE));
             final PlotPlayer owner = UUIDHandler.getPlayer(plot.owner);
             if (owner != null) {
                 if ((plot.settings.getAlias() != null) && !plot.settings.getAlias().equals("")) {
@@ -89,6 +89,8 @@ public class ApproveCommand extends SubCommand {
                         MainUtil.sendMessage(null, "Console: " + cmd);
                         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), cmd);
                     }
+                    System.out.print("REQ: " + required);
+                    System.out.print("COUNT: " + count);
                 } catch (final Exception e) {
                     MainUtil.sendMessage(null, "[PlotApproval] &cInvalid approval command " + commandargs + "!");
                     MainUtil.sendMessage(player, "[PlotApproval] &cInvalid approval command " + commandargs + "!");
@@ -223,8 +225,12 @@ public class ApproveCommand extends SubCommand {
             if (plot.owner.equals(owner)) {
                 final Flag flag = FlagManager.getPlotFlag(plot, "done");
                 if (flag != null) {
-                    if (flag.getValue().equals("true")) {
+                    if (flag.getValue() == Boolean.TRUE) {
                         count++;
+                    }
+                    else {
+                        System.out.print(flag.getValue());
+                        System.out.print(flag.getValue().getClass());
                     }
                 }
             }

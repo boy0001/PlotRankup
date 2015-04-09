@@ -65,7 +65,7 @@ public class Main extends JavaPlugin implements Listener {
         for (final Plot plot : PlotSquared.getPlots()) {
             final Flag flag = FlagManager.getPlotFlag(plot, "done");
             if (flag != null) {
-                if (flag.getValue().equals("true")) {
+                if (flag.getValue() == Boolean.TRUE) {
                     plot.countsTowardsMax = false;
                 }
             }
@@ -144,8 +144,7 @@ public class Main extends JavaPlugin implements Listener {
             public Object parse(final String t) {
                 switch (t) {
                     case "true": {
-                        final Long n = 0l;
-                        return n;
+                        return Boolean.TRUE;
                     }
                     case "false": {
                         return Boolean.TRUE;

@@ -1,6 +1,6 @@
 name: PlotRankup
 main: com.empcraft.approval.Main
-version: 2.8.1
+version: 2.9.5
 description: Plot approval and rankup system for PlotSquared
 authors: [Empire92]
 softdepend: [Vault, PlotSquared]
