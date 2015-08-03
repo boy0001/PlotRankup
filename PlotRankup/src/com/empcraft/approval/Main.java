@@ -34,7 +34,8 @@ import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.util.MainUtil;
 import com.intellectualcrafters.plot.util.Permissions;
-import com.intellectualcrafters.plot.util.bukkit.BukkitUtil;
+import com.plotsquared.bukkit.util.BukkitUtil;
+
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -104,10 +105,10 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
-        MainCommand.subCommands.add(new DoneCommand());
-        MainCommand.subCommands.add(new ContinueCommand());
-        MainCommand.subCommands.add(new ApproveCommand());
-        MainCommand.subCommands.add(new CheckCommand());
+        MainCommand.getInstance().addCommand(new DoneCommand());
+        MainCommand.getInstance().addCommand(new ContinueCommand());
+        MainCommand.getInstance().addCommand(new ApproveCommand());
+        MainCommand.getInstance().addCommand(new CheckCommand());
     }
 
     private void setupVault() {

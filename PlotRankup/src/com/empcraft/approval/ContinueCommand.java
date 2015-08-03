@@ -1,5 +1,7 @@
 package com.empcraft.approval;
 
+import com.intellectualcrafters.plot.commands.CommandCategory;
+import com.intellectualcrafters.plot.commands.RequiredType;
 import com.intellectualcrafters.plot.commands.SubCommand;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.flag.Flag;
@@ -7,15 +9,19 @@ import com.intellectualcrafters.plot.flag.FlagManager;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.util.MainUtil;
-
+import com.plotsquared.general.commands.CommandDeclaration;
+@CommandDeclaration(
+        command = "continue",
+        permission = "plots.continue",
+        category = CommandCategory.ACTIONS,
+        requiredType = RequiredType.NONE,
+        description = "Continue editing your plot",
+        usage = "/plot continue"
+)
 public class ContinueCommand extends SubCommand {
 
-    public ContinueCommand() {
-        super("continue", "plots.continue", "Continue editing your plot", "continue", "undone", CommandCategory.ACTIONS, true);
-    }
-
     @Override
-    public boolean execute(final PlotPlayer player, final String... args) {
+    public boolean onCommand(final PlotPlayer player, final String... args) {
         final Plot plot = MainUtil.getPlot(player.getLocation());
         if (plot == null) {
             sendMessage(player, C.NOT_IN_PLOT);

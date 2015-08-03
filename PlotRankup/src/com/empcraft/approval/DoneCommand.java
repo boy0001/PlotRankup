@@ -1,6 +1,8 @@
 package com.empcraft.approval;
 
 import com.intellectualcrafters.plot.PS;
+import com.intellectualcrafters.plot.commands.CommandCategory;
+import com.intellectualcrafters.plot.commands.RequiredType;
 import com.intellectualcrafters.plot.commands.SubCommand;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.flag.Flag;
@@ -13,15 +15,19 @@ import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.object.PlotWorld;
 import com.intellectualcrafters.plot.object.RunnableVal;
 import com.intellectualcrafters.plot.util.MainUtil;
-
+import com.plotsquared.general.commands.CommandDeclaration;
+@CommandDeclaration(
+        command = "done",
+        permission = "plots.done",
+        category = CommandCategory.ACTIONS,
+        requiredType = RequiredType.NONE,
+        description = "Mark your plot as finished",
+        usage = "/plot done"
+)
 public class DoneCommand extends SubCommand {
 
-    public DoneCommand() {
-        super("done", "plots.done", "Mark your plot as finished", "done", "finish", CommandCategory.ACTIONS, true);
-    }
-
     @Override
-    public boolean execute(final PlotPlayer player, final String... args) {
+    public boolean onCommand(final PlotPlayer player, final String... args) {
         final Location loc = player.getLocation();
         final Plot plot = MainUtil.getPlot(loc);
         if (plot == null) {

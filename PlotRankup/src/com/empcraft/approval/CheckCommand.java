@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import com.intellectualcrafters.plot.PS;
+import com.intellectualcrafters.plot.commands.CommandCategory;
+import com.intellectualcrafters.plot.commands.RequiredType;
 import com.intellectualcrafters.plot.commands.SubCommand;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.flag.Flag;
@@ -11,15 +13,19 @@ import com.intellectualcrafters.plot.flag.FlagManager;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.util.MainUtil;
-
+import com.plotsquared.general.commands.CommandDeclaration;
+@CommandDeclaration(
+        command = "check",
+        permission = "plots.check",
+        category = CommandCategory.ACTIONS,
+        requiredType = RequiredType.NONE,
+        description = "Check the status of your plot in the queue",
+        usage = "/plot check"
+)
 public class CheckCommand extends SubCommand {
 
-    public CheckCommand() {
-        super("check", "plots.check", "Check the status of your plot in the queue", "check", "status", CommandCategory.INFO, true);
-    }
-
     @Override
-    public boolean execute(final PlotPlayer player, final String... args) {
+    public boolean onCommand(final PlotPlayer player, final String... args) {
         final Plot plot = MainUtil.getPlot(player.getLocation());
         if (plot == null) {
             sendMessage(player, C.NOT_IN_PLOT);

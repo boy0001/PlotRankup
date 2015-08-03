@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 
 import com.intellectualcrafters.plot.PS;
+import com.intellectualcrafters.plot.commands.CommandCategory;
+import com.intellectualcrafters.plot.commands.RequiredType;
 import com.intellectualcrafters.plot.commands.SubCommand;
 import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.flag.Flag;
@@ -17,16 +19,21 @@ import com.intellectualcrafters.plot.object.Location;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 import com.intellectualcrafters.plot.util.MainUtil;
-import com.intellectualcrafters.plot.util.bukkit.UUIDHandler;
+import com.intellectualcrafters.plot.util.UUIDHandler;
+import com.plotsquared.general.commands.CommandDeclaration;
 
+@CommandDeclaration(
+        command = "approve",
+        permission = "plots.approve",
+        category = CommandCategory.ACTIONS,
+        requiredType = RequiredType.NONE,
+        description = "Used to approve player's plots",
+        usage = "/plot approve"
+)
 public class ApproveCommand extends SubCommand {
 
-    public ApproveCommand() {
-        super("approve", "plots.approve", "Used to approve player's plots", "approve", "approval", CommandCategory.ACTIONS, true);
-    }
-
     @Override
-    public boolean execute(final PlotPlayer player, final String... args) {
+    public boolean onCommand(final PlotPlayer player, final String... args) {
         final List<String> validArgs = Arrays.asList("approve", "list", "next", "listworld", "deny");
         if ((args.length == 0) || !validArgs.contains(args[0].toLowerCase())) {
             MainUtil.sendMessage(player, "&7Syntax: &c/plots approval <approve|deny|list|listworld|next>");
